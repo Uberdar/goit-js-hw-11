@@ -1,6 +1,7 @@
 import './sass/main.scss';
 import Notiflix from 'notiflix';
 import picAPIService from './js/photoAPI'
+var debounce = require('lodash.debounce');
 
 
 const refs = {
@@ -12,7 +13,7 @@ const refs = {
 const picsAPI = new picAPIService();
 refs.loadMoreBtn.style.display = "none";
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+refs.loadMoreBtn.addEventListener('click', debounce(onLoadMore,300));
 
 
 async function onSearch (e){
