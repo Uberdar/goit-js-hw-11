@@ -3,6 +3,9 @@ import Notiflix from 'notiflix';
 import picAPIService from './js/photoAPI'
 var debounce = require('lodash.debounce');
 
+const INFO_MSG = 'Search is empty. Please enter something';
+const WARNING_MSG = 'No more pictures left! :(';
+const FAILURE_MSG ='Sorry, there are no images matching your search query. Please try again.';
 
 const refs = {
     searchForm: document.querySelector('#search-form'),
@@ -13,24 +16,42 @@ const refs = {
 const picsAPI = new picAPIService();
 refs.loadMoreBtn.style.display = "none";
 refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', debounce(onLoadMore,300));
+refs.loadMoreBtn.addEventListener('click', debounce(()=>loadContent('loadmoreBtn'),300));
 
 
 async function onSearch (e){
+
     e.preventDefault();
-    refs.loadMoreBtn.removeAttribute("style");
-    picsAPI.query = e.currentTarget.elements.searchQuery.value;
+    let insertedData = e.currentTarget.elements.searchQuery.value
+    if (!insertedData){
+      Notiflix.Notify.info(INFO_MSG);
+      return
+    }
+    picsAPI.query = insertedData;
     picsAPI.resetPage();
     refs.articlesContainer.innerHTML = '';
-    const data = await picsAPI.fetchArticles()
-    const data2 = await generateMarkup(data);
-    await insertMarkupLast(data2);
+    loadContent('search');
+    refs.loadMoreBtn.removeAttribute("style");
 }
 
-async function onLoadMore(){
-   const data = await picsAPI.fetchArticles();
-   const markup = await generateMarkup(data);
-    await insertMarkupLast(markup);
+async function loadContent(payload = ''){
+  console.log('payload: ', payload);
+   try {
+    const data = await picsAPI.fetchArticles();
+    if (data.length === 0){
+      const {mes, method} = payload === 'search'? {mes:FAILURE_MSG, method:"failure"} : {mes:WARNING_MSG, method:"warning"};
+      Notiflix.Notify[method](mes);
+      return
+    }
+
+    const data2 = await generateMarkup(data);
+    await insertMarkupLast(data2);
+   } catch (error) {
+     console.log('error: ', error);
+     
+   }
+
+
 }
 
 function generateMarkup(elem = []) {
@@ -59,6 +80,11 @@ function generateMarkup(elem = []) {
         refs.articlesContainer.insertAdjacentHTML('beforeend', data);
     }
 
+    function doCheking(){
+      let x = e.target;
+      console.log(' x: ',  x);
+
+    }
 
 
 

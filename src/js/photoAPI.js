@@ -1,3 +1,4 @@
+import Notiflix from 'notiflix';
 const axios = require('axios');
 // console.log('axios: ', axios);
 export default class NewAPIQuery {
@@ -8,13 +9,16 @@ export default class NewAPIQuery {
     async fetchArticles(){
         try {
     const a = await axios.get(`https://pixabay.com/api/?key=25591290-62741b6a34916fce22a647eec&q=${this.searchQueryVar}&image_type=photo&page=${this.page}&per_page=3&orientation=horizontal&safesearch=true`)
-    // console.log('a: ', a);
+    console.log('a: ', a);
+    
     const b = await a.data.hits;
-    // console.log('b: ', b);
+    console.log('b: ', b);
     this.page += await 1;
+
     return b;
         } catch (error) {
-            Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.')
+            console.log(error);
+            Notiflix.Notify.failure('error');
         }
     }
 
